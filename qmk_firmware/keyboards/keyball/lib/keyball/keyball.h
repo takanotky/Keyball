@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Configurations
 
 #ifndef KEYBALL_CPI_DEFAULT
-#    define KEYBALL_CPI_DEFAULT 500
+#    define KEYBALL_CPI_DEFAULT 600 //500
 #endif
 
 #ifndef KEYBALL_SCROLL_DIV_DEFAULT
@@ -177,6 +177,10 @@ typedef struct {
     keypos_t       last_pos;
     report_mouse_t last_mouse;
 
+    uint16_t auto_mouse_layer_timeout;
+    layer_state_t last_layer_state;
+    uint16_t total_mouse_movement;
+
     // Buffer to indicate pressing keys.
     char pressing_keys[KEYBALL_OLED_MAX_PRESSING_KEYCODES + 1];
 } keyball_t;
@@ -256,17 +260,26 @@ uint8_t keyball_get_scroll_div(void);
 void keyball_set_scroll_div(uint8_t div);
 
 /// keyball_get_cpi gets current CPI of trackball.
-/// The actual CPI value is the returned value multiplied by 100:
+/// The actual CPI value is the returned value +1 and multiplied by 100:
 ///
-///     CPI = v * 100
+///     CPI = (v + 1) * 100
 uint8_t keyball_get_cpi(void);
 
 /// keyball_set_cpi changes CPI of trackball.
-/// Valid values are 0 to 120. If it is 0, KEYBALL_CPI_DEFAULT will be used,
-/// otherwise the actual CPI value will be the set value multiplied by 100:
+/// Valid values are between 0 to 119, and the actual CPI value is the set
+/// value +1 and multiplied by 100:
 ///
-///     CPI = v * 100
+///     CPI = (v + 1) * 100
 ///
 /// In addition, if you do not upload SROM, the maximum value will be limited
-/// to 35 (3500CPI).
+/// to 34 (3500CPI).
 void keyball_set_cpi(uint8_t cpi);
+void keyball_oled_render_cpi_status(void);
+void keyball_oled_render_cat(void);
+void keyball_oled_render_nikukyu(void);
+
+
+
+#ifdef POINTING_DEVICE_AUTO_MOUSE_ENABLE
+void keyball_handle_auto_mouse_layer_change(layer_state_t state);
+#endif
